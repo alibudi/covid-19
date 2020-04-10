@@ -1,10 +1,28 @@
   <div class="content-wrapper">
             <!-- START PAGE CONTENT-->
             <div class="page-content fade-in-up">
-             <h3>Perkembangan Covid 19 Di Indonesia</h3><br>
+             <h3>Perkembangan Covid 19 Di Indonesia</h3>
+               <div class="row">
+                    <div class="col-lg-12">
+                        <div class="ibox">
+                            <div class="ibox-head">
+                                <div class="ibox-title">Peta</div>
+                                <div class="ibox-tools">
+                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
+                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
+                                    
+                                </div>
+                            </div>
+                            <div class="ibox-body">
+                                  <div id="mapid" style="height: 400px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+          
                 <div class="row">
                     <div class="col-lg-4 col-md-8">
-                        <div class="ibox bg-success color-white widget-stat">
+                        <div class="ibox bg-warning color-white widget-stat">
                             <div class="ibox-body">
                                 <h2 class="m-b-5 font-strong"><?= $indo[0]['positif']?></h2>
                                 <div class="m-b-5">Total Positif</div><i class="fa fa-frown-o widget-stat-icon"></i>
@@ -22,7 +40,7 @@
                         </div>
                     </div>
                     <div class="col-lg-4 col-md-8">
-                        <div class="ibox bg-warning color-white widget-stat">
+                        <div class="ibox bg-danger color-white widget-stat">
                             <div class="ibox-body">
                                 <h2 class="m-b-5 font-strong"><?= $indo[0]['meninggal']?></h2>
                                 <div class="m-b-5">TOTAL Meninggal</div>
@@ -56,14 +74,14 @@
                                 </div>
                             </div>
                             <div class="ibox-body">
-                                <table class="table table-striped table-hover">
+                                  <table class="table table-striped table-bordered table-hover" id="example-table" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
                                             <th>No</th>
                                             <th>Provinsi</th>
-                                            <th>Positif</th>
-                                            <th>Sembuh</th>
-                                            <th>Meninggal</th>
+                                            <th>P</th>
+                                            <th>S</th>
+                                            <th>M</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -84,42 +102,42 @@
                 </div>
            
 
-                 <div class="row">
-                    <div class="col-lg-12">
-                        <div class="ibox">
-                            <div class="ibox-head">
-                                <div class="ibox-title">Peta</div>
-                                <div class="ibox-tools">
-                                    <a class="ibox-collapse"><i class="fa fa-minus"></i></a>
-                                    <a class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-ellipsis-v"></i></a>
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <a class="dropdown-item">option 1</a>
-                                        <a class="dropdown-item">option 2</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ibox-body">
-                                 <div id="mapid"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+               
             </div>
      <script type="text/javascript">
-         var map = L.map('mapid').setView([51.505, -0.09], 13);
-         var base_url="<?=base_url()?>";
+     var mymap = L.map('mapid').setView([-1.52184, 120.603580], 5);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
 
-        $.getJson("https://covid19-public.digitalservice.id/analytics/longlat", function(data){
-            $.each(data, function(i, field){
-                var v_lat=parseFloat(data[i][].alamat_longitude);
-                var v_long=parseFloat(data[i][].alamat_latitude);
-            })
-        })
-        L.marker([v_long,v_lat]).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-    .openPopup();
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+            '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox/streets-v11',
+    
+    }).addTo(mymap);
+
+
+ <?php foreach ($lokasi['features'] as $key => $value) { ?>
+             L.marker([<?=$value['geometry']['y']?>, <?=$value['geometry']['x']?>]).addTo(mymap)
+      .bindPopup("Provinsi : <?= $value['attributes']['Provinsi']?><br>" +
+                  "Positif : <?= $value['attributes']['Kasus_Posi']?><br>" +
+                  "Sembuh : <?= $value['attributes']['Kasus_Semb']?><br>" +
+                  "Meningga; : <?= $value['attributes']['Kasus_Meni']?><br>"  ).openPopup();
+   <?php }?>
      </script>
+
+     <script type="text/javascript">
+        $(function() {
+            $('#example-table').DataTable({
+                pageLength: 10,
+                //"ajax": './assets/demo/data/table_data.json',
+                /*"columns": [
+                    { "data": "name" },
+                    { "data": "office" },
+                    { "data": "extn" },
+                    { "data": "start_date" },
+                    { "data": "salary" }
+                ]*/
+            });
+        })
+    </script>
