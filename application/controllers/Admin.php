@@ -3,23 +3,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Admin extends CI_Controller {
 
-  var $API ="";
-    
-    function __construct() {
-        parent::__construct();
-        $this->load->library("Curl");
-        $this->API="https://api.kawalcorona.com/indonesia";
-    }
-	public function index()
+public function index()
 	{
-		
+		// $lokasi	= json_decode(file_get_contents('https://covid19-public.digitalservice.id/analytics/longlat/'), TRUE);
+		 $lokasi = json_decode(file_get_contents('https://services5.arcgis.com/VS6HdKS0VfIhv8Ct/arcgis/rest/services/COVID19_Indonesia_per_Provinsi/FeatureServer/0/query?where=1%3D1&outFields=*&outSR=4326&f=json'), TRUE);
 		$indo = json_decode(file_get_contents('https://api.kawalcorona.com/indonesia'), TRUE);
 		$prov = json_decode(file_get_contents('https://api.kawalcorona.com/indonesia/provinsi'),TRUE);
-		$host = json_decode(file_get_contents('https://bokusan.my.id/api/hospital'),TRUE);
+		// $host = json_decode(file_get_contents('https://bokusan.my.id/api/hospital'),TRUE);
 		$data = array(
 						'title'	=>	'Perkembangan Corona',
 						'main'	=>	'home/index',
-						'host'	=> $host,
+						'lokasi' => $lokasi,
 						'indo'	=> $indo,
 						'prov'	=> $prov,
 						
@@ -29,7 +23,7 @@ class Admin extends CI_Controller {
 
 		public function global()
 	{
-		$neg = json_decode(file_get_contents('https://api.kawalcorona.com/'),TRUE);
+		$lokasi = json_decode(file_get_contents('https://api.kawalcorona.com/'),TRUE);
 		$glob_pos = json_decode(file_get_contents('https://api.kawalcorona.com/positif'), TRUE);
 		$glob_semb = json_decode(file_get_contents('https://api.kawalcorona.com/sembuh'), TRUE);
 		$glob_meni = json_decode(file_get_contents('https://api.kawalcorona.com/meninggal'), TRUE);
@@ -39,68 +33,51 @@ class Admin extends CI_Controller {
 						'glob_pos'	=> $glob_pos,
 						'glob_semb'	=> $glob_semb,
 						'glob_meni'	=> $glob_meni,
-				
-						'neg'	=> $neg,
+						'lokasi'	=> $lokasi,
 					);
 		$this->load->view('template/template',$data, FALSE);
 	}
-
-	public function curl()
+	public function kasus()
 	{
-	        /* API URL */
-
-        $url = 'https://api.kawalcorona.com/indonesia';
-
-             
-
-        /* Init cURL resource */
-
-        $ch = curl_init($url);
-
-            
-
-        /* Array Parameter Data */
-
-        $data = ['name'=>'', 'positif'=>''];
-
-            
-
-        /* pass encoded JSON string to the POST fields */
-
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-           
-
-        /* set the content type json */
-
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-
-                    'Content-Type:application/json',
-
-                    'App-Key: 123456',
-
-                    'App-Secret: 1233'
-
-                ));
-
-            
-
-        /* set return type json */
-
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-            
-
-        /* execute request */
-
-        $result = curl_exec($ch);
-
-           print_r($result);
-           echo "$result";
-
-        /* close cURL resource */
-
-        curl_close($ch);
-
+			   $data = json_decode(file_get_contents('https://corona.elpida.my.id/api/detail'), TRUE);
+        $data_array = array(
+        	'main'	=> 'home/kasus',
+            'datalist' => $data
+        );
+        $this->load->view('template/template',$data_array);
 	}
+
+	public function kab()
+	{
+		   $data = json_decode(file_get_contents('https://covid19-public.digitalservice.id/analytics/longlat/'), TRUE);
+        $data_array = array(
+            'datalist' => $data,
+            'isi'	=> 'home/kab',
+        );
+          $this->load->view('template/template',$data_array, FALSE);
+	}
+
+	public function wilayah()
+	{
+		$data = json_decode(file_get_contents('https://covid19-public.digitalservice.id/analytics/longlat/'),TRUE);
+
+		 echo "$data";
+		  // $data_array = array(
+    //     	'main'	=> 'home/wilayah',
+    //     	'datalist' => $data,
+
+    //     );
+    //     $this->load->view('template/template',$data_array, FALSE);
+	}
+
+	public function peta()
+	{
+		$lokasi = json_decode(file_get_contents('https://api.kawalcorona.com/'),TRUE);
+		$data = array(
+						'lokasi'	=> $lokasi,
+					);
+		$this->load->view('peta',$data, FALSE);
+	}
+
 }
+ 
